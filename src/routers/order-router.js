@@ -15,11 +15,11 @@ orderRouter.get("/", async (req, res, next) => {
 
 orderRouter.post("/", async (req, res, next) => {
   try {
-    // if (is.emptyObject(req.body)) {
-    //   throw new Error(
-    //     "headers의 Content-Type을 application/json으로 설정해주세요"
-    //   );
-    // }
+    if (is.emptyObject(req.body)) {
+      throw new Error(
+        "headers의 Content-Type을 application/json으로 설정해주세요"
+      );
+    }
 
     const cart = req.body.cart;
     const address = req.body.address;
@@ -33,6 +33,7 @@ orderRouter.post("/", async (req, res, next) => {
       recipientname,
       recipientphonenumber
     });
+
     res.status(201).json(newOrder);
   } catch (error) {
     next(error);
