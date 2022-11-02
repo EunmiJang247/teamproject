@@ -150,7 +150,6 @@ class UserService {
 
   async deleteMyinfo(userId) {
     let user = await this.userModel.delete(userId);
-    console.log(user)
     return user;    
   }
 }

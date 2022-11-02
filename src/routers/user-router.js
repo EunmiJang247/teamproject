@@ -144,17 +144,17 @@ userRouter.get("/:userId", loginRequired, async function (req, res, next) {
     next(error);
   }
 });
+  
+userRouter.delete("/:userId", loginRequired, async function (req, res, next) {
 
-// userRouter.delete("/:userId", loginRequired, async function (req, res, next) {
-  userRouter.delete("/:userId", async function (req, res, next) {
   try {
     const {userId} = req.params;
     const deletedInfo = await userService.deleteMyinfo(userId);
 
-    // 사용자 목록(배열)을 JSON 형태로 프론트에 보냄
-    // res.status(200).json(myinfo);
+    res.status(200).json(deletedInfo);
   } catch (error) {
     next(error);
   }
 });
+
 export { userRouter };
