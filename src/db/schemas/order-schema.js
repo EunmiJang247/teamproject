@@ -2,6 +2,10 @@ import { Schema } from "mongoose";
 
 const OrderSchema = new Schema(
   {
+    personwhoordered: {
+      type: Schema.Types.ObjectId,
+      ref: "UserSchema"
+    },
     cart: {
         type: Object,
         required: true,

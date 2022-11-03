@@ -8,13 +8,15 @@ const orderRouter = Router();
 
 orderRouter.get("/chekmyorders", loginRequired , async (req, res, next) => {
   try {
-    console.log('hello')
+    const userId = req.currentUserId;
+    console.log(userId)
+
   } catch (error) {
     next(error);
   }
 });
 
-orderRouter.post("/", async (req, res, next) => {
+orderRouter.post("/", loginRequired ,async (req, res, next) => {
   try {
     if (is.emptyObject(req.body)) {
       throw new Error(
@@ -22,20 +24,24 @@ orderRouter.post("/", async (req, res, next) => {
       );
     }
 
+    const userId = req.currentUserId;
     const cart = req.body.cart;
     const address = req.body.address;
     const recipientname = req.body.recipientname;
     const recipientphonenumber = req.body.recipientphonenumber;
 
+    console.log(userId)
+
     // 위 데이터를 유저 db에 추가하기
     const newOrder = await orderService.addOrder({
+      personwhoordered : userId,
       cart,
       address,
       recipientname,
       recipientphonenumber
     });
 
-    res.status(201).json(newOrder).redirect("/");
+    res.status(201).json(newOrder);
   } catch (error) {
     next(error);
   }
