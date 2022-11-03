@@ -73,7 +73,9 @@ userRouter.get("/userlist", loginRequired, async function (req, res, next) {
 });
 
 // 사용자 정보 수정
-userRouter.patch("/:userId", loginRequired, async function (req, res, next) {
+// userRouter.patch("/:userId", loginRequired, async function (req, res, next) {
+  
+userRouter.patch("/:userId", async function (req, res, next) {
     try {
       // content-type 을 application/json 로 프론트에서
       // 설정 안 하고 요청하면, body가 비어 있게 됨.
