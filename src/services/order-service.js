@@ -27,6 +27,13 @@ class OrderService {
     ){throw new Error("배송이 시작되어 정보를 변경할수없어요")}
   }
 
+  async checkIfOrderMakeUserAndRequestUserIsSame(orderId, userId){
+    const result = await this.orderModel.findByOrderId(orderId)
+    if(String(result.personwhoordered) !== userId){
+      throw new Error("주문한 사람만 order를 삭제할 수 있습니다")
+    }
+  }
+
   // 신규주문
   async addOrder(orderInfo) {
     // db에 저장
@@ -56,6 +63,30 @@ class OrderService {
       update : toUpdate,
     });
     return changeinfostatus;
+  }
+
+  //내가 주문한 상품들 보기
+  async chekmyorders(userId){
+    const myorders = await this.orderModel.findByUserId(userId);
+    return myorders;
+  }
+
+  //내가 주문한 상품들 보기
+  async chekallorders(userId){
+    await this.checkIfYourAreAdmin(userId);
+    const allorders = await this.orderModel.findAllOrders();
+    return allorders;
+  }
+
+  async deleteOrderByUser(orderId, userId){
+    await this.checkIfOrderMakeUserAndRequestUserIsSame(orderId, userId);
+    const deleteorderbyUser = await this.orderModel.deleteThisOrder(orderId);
+    return deleteorderbyUser;
+  }
+  async deleteOrderByAdmin(orderId, userId){
+    await this.checkIfYourAreAdmin(userId);
+    const deleteorderbyAdmin = await this.orderModel.deleteThisOrder(orderId);
+    return deleteorderbyAdmin;
   }
 }
 

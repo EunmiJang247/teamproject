@@ -9,8 +9,18 @@ const orderRouter = Router();
 orderRouter.get("/chekmyorders", loginRequired , async (req, res, next) => {
   try {
     const userId = req.currentUserId;
-    console.log(userId)
+    const chekmyorders = await orderService.chekmyorders(userId);
+    res.status(201).json(chekmyorders);
+  } catch (error) {
+    next(error);
+  }
+});
 
+orderRouter.get("/admin/allorders", loginRequired , async (req, res, next) => {
+  try {
+    const userId = req.currentUserId;
+    const checkallorders = await orderService.chekallorders(userId);
+    res.status(201).json(checkallorders);
   } catch (error) {
     next(error);
   }
@@ -30,15 +40,13 @@ orderRouter.post("/", loginRequired ,async (req, res, next) => {
     const recipientname = req.body.recipientname;
     const recipientphonenumber = req.body.recipientphonenumber;
 
-    console.log(userId)
-
     // 위 데이터를 유저 db에 추가하기
     const newOrder = await orderService.addOrder({
       personwhoordered : userId,
       cart,
       address,
       recipientname,
-      recipientphonenumber
+      recipientphonenumber,
     });
 
     res.status(201).json(newOrder);
@@ -80,6 +88,28 @@ orderRouter.patch("/users/:orderId", loginRequired, async (req, res, next) => {
     
     const updatedOrderInfoByUser = await orderService.setUserOrder(orderId, toUpdate);
     res.status(201).json(updatedOrderInfoByUser);
+  } catch (error) {
+    next(error);
+  }
+});
+
+orderRouter.delete("/users/:orderId", loginRequired, async (req, res, next) => {
+  try {
+    const {orderId} = req.params;
+    const userId = req.currentUserId;
+    const deleteOrderByUser = await orderService.deleteOrderByUser(orderId, userId);
+    res.status(201).json(deleteOrderByUser);
+  } catch (error) {
+    next(error);
+  }
+});
+
+orderRouter.delete("/admin/:orderId", loginRequired, async (req, res, next) => {
+  try {
+    const {orderId} = req.params;
+    const userId = req.currentUserId;
+    const deleteOrderByAdmin = await orderService.deleteOrderByAdmin(orderId, userId);
+    res.status(201).json(deleteOrderByAdmin);
   } catch (error) {
     next(error);
   }

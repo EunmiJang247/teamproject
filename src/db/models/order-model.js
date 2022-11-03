@@ -27,6 +27,20 @@ export class OrderModel {
     const updatedeliveryStatus = await Order.findOneAndUpdate(filter, update, option);
     return updatedeliveryStatus;
   }
+  async findByUserId(userId){
+    const filter = { personwhoordered : userId };
+    const findByUserIdResult = await Order.find(filter);
+    return findByUserIdResult;
+  }
+  async findAllOrders(){
+    const findAllOrderList = await Order.find();
+    return findAllOrderList;
+  }
+  async deleteThisOrder(orderId){
+    const filter = { _id : orderId };
+    const deleteThisorder = await Order.deleteOne(filter)
+    return deleteThisorder;
+  }
 }
 
 const orderModel = new OrderModel();
