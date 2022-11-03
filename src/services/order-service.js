@@ -57,7 +57,6 @@ class OrderService {
     });
     return changeinfostatus;
   }
-
 }
 
 const orderService = new OrderService(orderModel, userModel);

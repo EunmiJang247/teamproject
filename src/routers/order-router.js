@@ -35,7 +35,7 @@ orderRouter.post("/", async (req, res, next) => {
       recipientphonenumber
     });
 
-    res.status(201).json(newOrder).redirect("/")
+    res.status(201).json(newOrder).redirect("/");
   } catch (error) {
     next(error);
   }
