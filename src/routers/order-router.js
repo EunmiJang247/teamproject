@@ -1,52 +1,23 @@
 import { Router } from "express";
-import is from "@sindresorhus/is";
 // 폴더에서 import하면, 자동으로 폴더의 index.js에서 가져옴
 import { orderService } from "../services";
 import { loginRequired } from "../middlewares";
+import Utils from "../utils/utils";
 
 const orderRouter = Router();
 
-orderRouter.get("/chekmyorders", loginRequired , async (req, res, next) => {
-  try {
-    const userId = req.currentUserId;
-    const chekmyorders = await orderService.chekmyorders(userId);
-    res.status(201).json(chekmyorders);
-  } catch (error) {
-    next(error);
-  }
-});
-
-orderRouter.get("/admin/allorders", loginRequired , async (req, res, next) => {
-  try {
-    const userId = req.currentUserId;
-    const checkallorders = await orderService.chekallorders(userId);
-    res.status(201).json(checkallorders);
-  } catch (error) {
-    next(error);
-  }
-});
-
+//신규주문
 orderRouter.post("/", loginRequired ,async (req, res, next) => {
   try {
-    if (is.emptyObject(req.body)) {
-      throw new Error(
-        "headers의 Content-Type을 application/json으로 설정해주세요"
-      );
-    }
-
+    Utils.isemptyObject(req.body)
     const userId = req.currentUserId;
-    const cart = req.body.cart;
-    const address = req.body.address;
-    const recipientname = req.body.recipientname;
-    const recipientphonenumber = req.body.recipientphonenumber;
 
-    // 위 데이터를 유저 db에 추가하기
     const newOrder = await orderService.addOrder({
       personwhoordered : userId,
-      cart,
-      address,
-      recipientname,
-      recipientphonenumber,
+      cart : req.body.cart,
+      address : req.body.address,
+      recipientname : req.body.recipientname,
+      recipientphonenumber : req.body.recipientphonenumber,
     });
 
     res.status(201).json(newOrder);
@@ -55,8 +26,10 @@ orderRouter.post("/", loginRequired ,async (req, res, next) => {
   }
 });
 
+//관리자가 배송정보를 수정
 orderRouter.patch("/admin/:orderId", loginRequired, async (req, res, next) => {
   try {
+    Utils.isemptyObject(req.body)
     const userId = req.currentUserId;
     const {orderId} = req.params;
     const deliverystatus = req.body.deliverystatus;
@@ -72,13 +45,14 @@ orderRouter.patch("/admin/:orderId", loginRequired, async (req, res, next) => {
   }
 });
 
+//일반 user가 정보를 변경
 orderRouter.patch("/users/:orderId", loginRequired, async (req, res, next) => {
   try {
+    Utils.isemptyObject(req.body)
+    const userId = req.currentUserId;
     const {orderId} = req.params;
 
-    const address = req.body.address;
-    const recipientname = req.body.recipientname;
-    const recipientphonenumber = req.body.recipientphonenumber;
+    const {address, recipientname, recipientphonenumber} = req.body;
     
     const toUpdate = {
       ...(address && { address }),
@@ -86,13 +60,36 @@ orderRouter.patch("/users/:orderId", loginRequired, async (req, res, next) => {
       ...(recipientphonenumber && { recipientphonenumber }),
     };
     
-    const updatedOrderInfoByUser = await orderService.setUserOrder(orderId, toUpdate);
+    const updatedOrderInfoByUser = await orderService.setUserOrder(orderId, userId, toUpdate);
     res.status(201).json(updatedOrderInfoByUser);
   } catch (error) {
     next(error);
   }
 });
 
+//내주문리스트보기
+orderRouter.get("/chekmyorders", loginRequired , async (req, res, next) => {
+  try {
+    const userId = req.currentUserId;
+    const chekmyorders = await orderService.chekmyorders(userId);
+    res.status(201).json(chekmyorders);
+  } catch (error) {
+    next(error);
+  }
+});
+
+//관리자가 모든주문보기
+orderRouter.get("/admin/allorders", loginRequired , async (req, res, next) => {
+  try {
+    const userId = req.currentUserId;
+    const checkallorders = await orderService.chekallorders(userId);
+    res.status(201).json(checkallorders);
+  } catch (error) {
+    next(error);
+  }
+});
+
+//일반유저가 주문삭제
 orderRouter.delete("/users/:orderId", loginRequired, async (req, res, next) => {
   try {
     const {orderId} = req.params;
@@ -104,6 +101,7 @@ orderRouter.delete("/users/:orderId", loginRequired, async (req, res, next) => {
   }
 });
 
+//관리자가 주문삭제
 orderRouter.delete("/admin/:orderId", loginRequired, async (req, res, next) => {
   try {
     const {orderId} = req.params;
